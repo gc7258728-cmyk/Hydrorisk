@@ -1,0 +1,128 @@
+HYDRORISK - LABORATOIRE PEDAGOGIQUE
+=================================
+Application pour etudiants et enseignants : methode rationnelle, Manning,
+reseau arborescent et probabilites conditionnelles. Aucun compte ni cle API.
+Identite visuelle : bleu ocean, fond glacier, bandeau clair et accents
+cyan, safran et corail. Palette distincte de StructureLab et Genie Civil Pro.
+
+FICHIERS
+app.py : interface, styles, moteur de calcul, imports et exports.
+requirement.text : bibliotheques ; README : ce guide.
+Les donnees restent en memoire de session : exporter le projet JSON pour
+le conserver. Aucune base de donnees ni donnee personnelle obligatoire.
+
+INSTALLATION WINDOWS
+Ouvrir ce dossier dans VS Code, puis le terminal :
+  python -m pip install -r requirement.text
+  python -m streamlit run app.py
+Python 3.12 ou superieur conseille. Developpe avec Python 3.14.
+Streamlit : interface ; pandas : tableaux et imports ; numpy : tirages ;
+scipy : distributions, correlations et intervalles binomiaux ; plotly :
+graphiques ; openpyxl : Excel ; reportlab : rapports PDF.
+
+PREMIERE UTILISATION
+L'accueil ne charge aucune donnee automatiquement. Le bouton Charger
+l'exemple fictif est volontaire ; si des donnees existent, cocher d'abord
+l'autorisation de remplacement. L'exemple ne represente aucun site reel.
+Pour une creation manuelle, creer d'abord un bassin rattache a T1 : un
+collecteur T1 de depart est cree. Modifier ensuite le reseau et les bassins.
+Pour plusieurs nouveaux troncons et leurs bassins simultanement, utiliser
+l'import Excel complet afin de valider toutes les references ensemble.
+Les tableaux sont appliques uniquement avec Enregistrer ; les formulaires
+avec leur bouton. Les resultats concernent les donnees validees, pas les
+cellules encore en edition. Un changement valide invalide les simulations.
+
+RUBRIQUES
+Tableau de bord : Q et capacite exutoire, taux d'utilisation, schema reseau,
+comparaison Q/capacite et troncon le plus sollicite.
+Bassin versant : lignes distinctes d'occupation du sol ; C pondere par A.
+Pluie : intensite uniforme, duree et tc global fournis par l'utilisateur.
+Reseau : identifiants uniques ; aval vide pour un seul exutoire ; pas de
+cycle ; chaque bassin est rattache une seule fois. Le schema est interactif
+au survol. Les pointes sont additionnees sans stockage ni routage.
+Simulation : pluie lognormale commune et C beta independants par surface.
+CV = ecart-type / moyenne. Les C exactement 0 ou 1 restent fixes.
+La variance des C doit etre strictement inferieure a C*(1-C).
+Probabilite de depassement de chaque troncon et d'au moins un troncon,
+intervalle binomial exact 95 %, histogramme, survie empirique,
+convergence, sensibilite de Spearman et quantiles.
+Comparaison : facteurs uniformes de diametre et pente, reduction relative
+de C. Tirages de base apparies ; pas d'estimation de cout ou de faisabilite.
+Le resultat de comparaison reste celui du dernier clic Comparer ; cliquer
+a nouveau apres modification des facteurs. Excel contient les deux reseaux.
+Donnees : modeles CSV/Excel, import valide, projet JSON, CSV et PDF/Excel.
+Methode : formules, hypotheses, sources et tests de reference.
+
+FORMATS D'IMPORT
+Excel .xlsx (3 Mo maximum) : feuilles bassins et reseau.
+CSV UTF-8 (1 Mo chacun), virgules, nombres decimaux avec point.
+Colonnes bassins, exactement dans cet ordre :
+  id,troncon,occupation,surface_ha,coefficient
+Colonnes reseau :
+  id,aval,diametre_mm,pente_pct,manning_n
+Maximum 100 lignes par tableau. Toutes les valeurs numeriques doivent etre
+finies. References existantes, surfaces positives, C entre 0 et 1.
+Les imports tabulaires conservent pluie, duree, tc et simulation actuels.
+JSON complet exporte par l'app : inclut ces parametres et les donnees.
+Ne pas assimiler une donnee importee a une observation verifiee.
+Les exports CSV neutralisent les formules dans les champs texte ; les
+exports Excel ecrivent les chaines comme du texte.
+
+MODELE ET UNITES
+Q = C*i*A/360 ; Q en m3/s, pluie en mm/h, A en hectares.
+Manning : Qcap = (S/n)*Rh^(2/3)*racine(pente).
+S = pi*D^2/4 ; Rh = D/4 ; D converti de mm en m ; pente % divisee par 100.
+La duree doit atteindre tc global, estime en amont par l'utilisateur avec
+les trajets jusqu'a l'exutoire. Sinon les resultats sont indicatifs et
+l'app signale que l'hypothese des pointes etablies n'est pas satisfaite.
+Il n'y a pas de courbe IDF locale inventee, de periode de retour attribuee,
+d'hydrogramme dynamique ni de calcul d'inondation.
+Une conduite pleine en regime uniforme est une reference simplifiee,
+pas une evaluation des remous, pressions, bouchages ou mises en charge.
+Une probabilite conditionnelle n'est ni une frequence annuelle ni une
+probabilite de rupture. La sensibilite n'est pas une preuve de causalite.
+Un outil pedagogique ne remplace pas une etude hydraulique professionnelle.
+
+TESTS A REPRODUIRE
+1. Un bassin A=2 ha, C=0.6, pluie=100 mm/h, duree>=tc : Q=0.333333 m3/s.
+2. Doubler pluie ou surface : Q=0.666667 m3/s.
+3. A=0.6 ha et 1.2 ha, C=0.6, i=100, deux branches : 0.1 et 0.2 m3/s ;
+   leur collecteur commun recoit 0.3 m3/s sans autre contribution.
+4. D=500 mm, pente=1 %, n=0.013 : verifier le resultat affiche dans Methode.
+5. CV pluie=C=0 : tous les tirages reproduisent le debit nominal, risque
+   0 ou 100 % selon le seuil strict Q>capacite. Le CI reste non degenere.
+6. Meme projet, n et graine : memes tirages. Changer la graine change
+   generalement les resultats si les entrees sont incertaines.
+7. JSON : exporter/reimporter, comparer les parametres ; Excel/CSV :
+   ouvrir les tableaux ; PDF : verifier unites, hypothese duree et graine.
+
+PUBLICATION ET DEPLOIEMENT
+Garder seulement les trois fichiers livres dans ce dossier local.
+Sur GitHub, creer un depot propre a HydroRisk puis televerser les fichiers.
+Dans une copie de deploiement, renommer requirement.text exactement en
+requirements.txt (minuscules, avec s). Streamlit Community Cloud n'installe
+pas les dependances depuis requirement.text. Ne pas modifier ce nom local
+sans le vouloir. Ne publier aucun secret ni donnees personnelles.
+Streamlit Cloud : Create app, choisir le depot, branche main, app.py.
+Paste URL : fournir le lien GitHub /blob/main/app.py.
+Apres modification, committer les fichiers sur la branche deployee.
+En cas de module manquant : verifier nom de requirements.txt, branche,
+contenu et journaux Manage app avant de relancer.
+
+SOURCES
+https://www.fhwa.dot.gov/engineering/hydraulics/pubs/hif24007.pdf
+https://www.fhwa.dot.gov/engineering/hydraulics/pubs/hif24006.pdf
+
+VERIFICATIONS
+Les tests automatises et captures sont hors de ce dossier (work).
+Sept tests automatises reussis : formule rationnelle et linearite,
+Manning independant, cumul, validation, simulation reproductible,
+exports et navigation Streamlit avec simulation et comparaison.
+Navigateur : huit vues, exemple, simulation et comparaison controles
+aux largeurs 1440, 768, 390 et 320 px ; schema non vide et sans
+debordement horizontal de la page. Les tableaux larges restent defilables.
+Import Excel et telechargement PDF testes dans le navigateur ; rapport
+PDF de test rendu et inspecte visuellement. Le deploiement Cloud n'a
+pas ete execute et les formats Excel exotiques ne sont pas garantis.
+Restent hors perimetre : validation normative, donnees pluviometriques
+locales, mise en charge dynamique et etude reelle d'un site.
